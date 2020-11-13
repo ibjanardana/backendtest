@@ -10,13 +10,15 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Config;
 
-class UserController extends Controller {
+class UserController extends Controller
+{
 
     /**
      * Get named route
      *
      */
-    private function getRoute() {
+    private function getRoute()
+    {
         return 'admin';
     }
 
@@ -25,17 +27,19 @@ class UserController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    protected function validator(array $data, $type) {
+    protected function validator(array $data, $type)
+    {
         // Determine if password validation is required depending on the calling
         return Validator::make($data, [
-                'username' => 'required|string|max:255|unique:users,username,' . $data['id'],
-                'display_name' => 'required|string|max:100',
-                // (update: not required, create: required)
-                'password' => 'string|min:6|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $data['id'],
+            'display_name' => 'required|string|max:100',
+            // (update: not required, create: required)
+            'password' => 'string|min:6|max:255',
         ]);
     }
 
-    public function index() {
+    public function index()
+    {
         return view('backend.users.index');
     }
 
@@ -61,7 +65,8 @@ class UserController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request) {
+    public function create(Request $request)
+    {
         $newUser = $request->all();
 
         // Validate input, indicate this is 'create' function
@@ -89,7 +94,8 @@ class UserController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {
+    public function edit($id)
+    {
         $user = User::find($id);
         $user->form_action = $this->getRoute() . '.update';
         $user->page_title = 'User Edit Page';
@@ -107,7 +113,8 @@ class UserController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
         $newUser = $request->all();
         try {
             $currentUser = User::find($request->get('id'));
@@ -140,7 +147,8 @@ class UserController extends Controller {
         }
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request)
+    {
         try {
             // Get user by id
             $user = User::find($request->get('id'));
@@ -160,5 +168,4 @@ class UserController extends Controller {
             return redirect()->route($this->getRoute())->with('error', Config::get('const.FAILED_DELETE_MESSAGE'));
         }
     }
-
 }
