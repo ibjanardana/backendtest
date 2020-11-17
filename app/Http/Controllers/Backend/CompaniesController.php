@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Postcode;
 
 class CompaniesController extends Controller
 {
     private function getRoute()
     {
-        return 'company';
+        return 'admin.companies';
     }
 
     /**
@@ -39,13 +40,19 @@ class CompaniesController extends Controller
 
     public function add()
     {
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->input('postcode');
+        $postcode = DB::table('postcodes')->where('postcode', 'LIKE', '%' . $keyword . '%')->get();
+        // dd($postcode);
+        // return view('backend.companies.form')->withPosts($postcode);
         $company = new Company();
-        $company->form_action = $this->getRoute() . '.create';
+        $company->form_action = $this->getRoute() . '.store';
         $company->page_title = 'Company Add Page';
-        $company->page_type = 'create';
-        return view('backend.companies.form', [
-            'company' => $company
-        ]);
+        $company->page_type = 'store';
+        return view('backend.companies.form', ['company' => $company, 'postcode' => $postcode]);
     }
 
     public function index()
@@ -58,9 +65,15 @@ class CompaniesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $company = new Company();
+        $company->form_action = $this->getRoute() . '.create';
+        $company->page_title = 'Company Add Page';
+        $company->page_type = 'create';
+        return view('backend.companies.form', [
+            'company' => $company
+        ]);
     }
 
     /**
@@ -71,7 +84,8 @@ class CompaniesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $datas = $request->all();
+        dd($datas);
     }
 
     /**

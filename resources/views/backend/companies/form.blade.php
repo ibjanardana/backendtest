@@ -15,7 +15,7 @@
             <div class="box">
                 <div class="box-header">
                     <h3 class="box-title">{{ $company->page_title }}</h3>
-                    <button class="btn btn-primary pull-right">Back</button>
+                    <a href="{{url('/')}}" class="btn btn-primary pull-right">Back</a>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
@@ -29,6 +29,10 @@
                     </div>
                     @endif
 
+                    @if(isset($company) && $company->page_type == 'store')
+                    {{ Form::open(array('route' => $company->form_action, 'method' => 'POST', 'files' => true, 'id' => 'user-form')) }}
+                    {{ Form::hidden('id', $company->id, array('id' => 'user_id')) }}
+                    @endif
 
                     <div id="form-display-name" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
                         <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2 col-header">
@@ -50,24 +54,36 @@
                         </div>
                     </div>
 
+                    @if($company->page_type == 'create')
+                    {{ Form::open(['route'=>'postcode.search','method' => 'POST', 'id' => 'user-form']) }}
+                    {{-- <form method="POST" action="{{url('/admin/companies/postcode/search')}}"> --}}
+                    {{ csrf_field() }}
+                    @endif
                     <div id="form-postcode" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
                         <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2 col-header">
                             <span class="label label-danger label-required">Required</span>
                             <strong class="field-title">Postcode</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-4 col-content">
-                            {{ Form::text('postcode', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{-- <input type="number" value="{{old('postcode')}}" class="form-control" name="postcode" required> --}}
+                            {{ Form::number('postcode', $company->display_name, array('placeholder' => '', 'id'=>'search', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
-                        <button type="submit" name="search" class="btn btn-primary">Search</button>
+                        <button type="submit" name="search" class="btn btn-primary" id="button">Search</button>
                     </div>
+                    @if($company->page_type == 'create')
+                    {{-- </form> --}}
+                    {{ Form::close() }}
+                    @endif
 
-                    <div id="form-prefecture" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
+                    @if(isset($postcode))
+                    @foreach($postcode as $key => $value)
+                    <div id="form-prefecture" class="form-group ">
                         <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2 col-header">
                             <span class="label label-danger label-required">Required</span>
                             <strong class="field-title">Prefecture</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('prefecture', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('prefecture', $value->prefecture, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -77,7 +93,7 @@
                             <strong class="field-title">City</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('city', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('city', $value->city, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -87,9 +103,11 @@
                             <strong class="field-title">Local</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('local', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('local', $value->local, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
+                    @endforeach
+                    @endif
 
                     <div id="form-streetaddress" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
                         <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2 col-header">
@@ -160,7 +178,8 @@
                             <strong class="field-title">Image</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::file('image', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            <input type="file" class="form-control" id="image-source" onchange="previewImage()" required>
+                            <img src="{{asset('img/no-image/no-image.jpg')}}" width="250" alt="" id="image-preview">
                         </div>
                     </div>
 
@@ -169,6 +188,9 @@
                             <button type="submit" name="submit" id="send" class="btn btn-primary">Submit</button>
                         </div>
                     </div>
+                    @if($company->page_type == 'store')
+                    {{ Form::close() }}
+                    @endif
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -192,6 +214,19 @@
 <script src="{{ asset('bower_components/bootstrap/js/tooltip.js') }}"></script>
 <!-- validationEngine -->
 <script src="{{ asset('js/3rdparty/validation-engine/jquery.validationEngine-en.js') }}"></script>
-<script src="{{ asset('js/3rdparty/validation-engine/jquery.validationEngine.js') }}"></script>
-<script src="{{ asset('js/backend/users/form.js') }}"></script>
-@endsection
+<scrip src="{{ asset('js/3rdparty/validation-engine/jquery.validationEngine.js') }}">
+    </script>
+    <scrip src="{{ asset('js/backend/users/form.js') }}"></scrip>
+    <script>
+        function previewImage() {
+            document.getElementById("image-preview").style.display = "block";
+            var oFReader = new FileReader();
+            oFReader.readAsDataURL(document.getElementById("image-source").files[0]);
+
+            oFReader.onload = function(oFREvent) {
+                document.getElementById("image-preview").src = oFREvent.target.result;
+            };
+        };
+
+    </script>
+    @endsection
