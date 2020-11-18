@@ -21,8 +21,11 @@ use Illuminate\Http\Request;
  */
 
 // Below are the routes accessible only by admin
-Route::GROUP(['middleware' => ['auth:user']], function() {
+Route::GROUP(['middleware' => ['auth:user']], function () {
 
-    // Get User List
-    Route::get('/admin/users/getUsersTabular', 'Api\ApiUsersController@getUsersTabular');
+  // Get User List
+  Route::get('/admin/users/getUsersTabular', 'Api\ApiUsersController@getUsersTabular');
+
+  // Get Company List
+  Route::get('/admin/companies/getCompaniesTabular', 'Api\ApiCompaniesController@getCompaniesTabular');
 });

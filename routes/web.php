@@ -53,8 +53,8 @@ Route::GROUP(['middleware' => ['auth:user']], function () {
   Route::GET('/admin/delete', 'Backend\UserController@delete')->name('admin.delete');
 
   // Admin (handles companies account)
-  Route::POST('/admin/companies/create', 'Backend\CompaniesController@search')->name('postcode.search');
   Route::GET('/admin/companies', 'Backend\CompaniesController@index')->name('admin.companies');
+  Route::POST('/admin/companies/create', 'Backend\CompaniesController@search')->name('postcode.search');
   Route::GET('/admin/companies/create', 'Backend\CompaniesController@create')->name('admin.companies.create');
   Route::POST('/admin/companies/store', 'Backend\CompaniesController@store')->name('admin.companies.store');
   Route::GET('/admin/companies/edit/{id}', 'Backend\CompaniesController@edit')->name('admin.companies.edit');
