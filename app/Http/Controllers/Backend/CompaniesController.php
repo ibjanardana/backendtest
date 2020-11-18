@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Models\Base\Prefecture as BasePrefecture;
 use App\Models\Company;
-use App\Models\Postcode;
+use App\Models\Prefecture;
 
 class CompaniesController extends Controller
 {
@@ -21,38 +22,34 @@ class CompaniesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    protected function validator(array $data, $type)
-    {
-        // Determine if password validation is required depending on the calling
-        return Validator::make($data, [
-            // 'username' => 'required|string|max:255|unique:users,username,' . $data['id'],
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|max:100',
-            'postcode' => 'required',
-            'prefecture' => 'required',
-            'city' => 'required',
-            'local' => 'required',
-            'image' => 'required'
-            // (update: not required, create: required)
-            // 'password' => 'string|min:6|max:255',
-        ]);
-    }
-
-    public function add()
-    {
-    }
 
     public function search(Request $request)
     {
-        $keyword = $request->input('postcode');
-        $postcode = DB::table('postcodes')->where('postcode', 'LIKE', '%' . $keyword . '%')->get();
-        // dd($postcode);
-        // return view('backend.companies.form')->withPosts($postcode);
-        $company = new Company();
-        $company->form_action = $this->getRoute() . '.store';
-        $company->page_title = 'Company Add Page';
-        $company->page_type = 'store';
-        return view('backend.companies.form', ['company' => $company, 'postcode' => $postcode]);
+        if ($request->input('postcode') == '') {
+            $company = new Company();
+            $company->form_action = $this->getRoute() . '.store';
+            $company->page_title = 'Company Add Page';
+            $company->page_type = 'create';
+            return view('backend.companies.form', ['company' => $company]);
+        } else {
+            $keyword = $request->input('postcode');
+            $postcode = DB::table('postcodes')->select('postcode', 'prefecture', 'city', 'local')->where('postcode', 'LIKE', '%' . $keyword . '%')->get();
+            foreach ($postcode as $key => $value) {
+                $prefecture = DB::table('prefectures')->select('id')->where('display_name', 'LIKE', '%' . $value->prefecture . '%')->get();
+                foreach ($prefecture as $key => $value) {
+                    $prefecture_id = $value->id;
+                }
+            }
+            $company = new Company();
+            $company->form_action = $this->getRoute() . '.store';
+            $company->page_title = 'Company Add Page';
+            $company->page_type = 'store';
+            return view('backend.companies.form', [
+                'company' => $company,
+                'postcode' => $postcode,
+                'prefecture_id' => $prefecture_id
+            ]);
+        }
     }
 
     public function index()
@@ -84,8 +81,43 @@ class CompaniesController extends Controller
      */
     public function store(Request $request)
     {
-        $datas = $request->all();
-        dd($datas);
+        $companies_id = DB::table('companies')->count();
+        $companies_id = $companies_id + 1;
+
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email',
+            'prefecture_id' => 'required',
+            'postcode' => 'required',
+            'city' => 'required|string',
+            'local' => 'required|string',
+            'image' => 'required|file|image|mimes:jpeg,png,gif,webp|max:5000'
+        ]);
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'image_' . $companies_id . '.' . $extension;
+            $file->move('uploads/files/', $filename);
+        }
+        $postdata = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'prefecture_id' => $request->prefecture_id,
+            'postcode' => $request->postcode,
+            'city' => $request->city,
+            'local' => $request->city,
+            'street_address' => $request->input('street_address'),
+            'business_hour' => $request->input('business_hour'),
+            'regular_holiday' => $request->input('regular_holiday'),
+            'image' => $filename,
+            'fax' => $request->fax,
+            'url' => $request->url,
+            'license_number' => $request->license_number,
+        ];
+        DB::table('companies')->insert($postdata);
+        return redirect()->route('admin.companies')->with('success', 'Company Created Successfully');
+        // $datas = $request->all();
+        // dd($datas);
     }
 
     /**

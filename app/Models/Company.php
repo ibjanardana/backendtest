@@ -4,6 +4,8 @@ namespace App\Models;
 
 class Company extends \App\Models\Base\Company
 {
+	protected $table = 'companies';
+
 	protected $fillable = [
 		'name',
 		'email',

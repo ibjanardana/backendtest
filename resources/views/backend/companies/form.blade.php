@@ -29,9 +29,9 @@
                     </div>
                     @endif
 
-                    @if(isset($company) && $company->page_type == 'store')
+                    @if(isset($company) && $company->page_type == 'store' || isset($error))
                     {{ Form::open(array('route' => $company->form_action, 'method' => 'POST', 'files' => true, 'id' => 'user-form')) }}
-                    {{ Form::hidden('id', $company->id, array('id' => 'user_id')) }}
+                    {{ Form::hidden('id', $company->id, array('id' => 'company_id')) }}
                     @endif
 
                     <div id="form-display-name" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
@@ -40,7 +40,7 @@
                             <strong class="field-title">Name</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('name', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('name', old('name'), array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -50,13 +50,12 @@
                             <strong class="field-title">Email</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('email', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('email', old('email'), array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
                     @if($company->page_type == 'create')
                     {{ Form::open(['route'=>'postcode.search','method' => 'POST', 'id' => 'user-form']) }}
-                    {{-- <form method="POST" action="{{url('/admin/companies/postcode/search')}}"> --}}
                     {{ csrf_field() }}
                     @endif
                     <div id="form-postcode" class="form-group {{ $company->page_type == 'edit'?'hide':'' }}">
@@ -65,13 +64,11 @@
                             <strong class="field-title">Postcode</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-4 col-content">
-                            {{-- <input type="number" value="{{old('postcode')}}" class="form-control" name="postcode" required> --}}
                             {{ Form::number('postcode', $company->display_name, array('placeholder' => '', 'id'=>'search', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                         <button type="submit" name="search" class="btn btn-primary" id="button">Search</button>
                     </div>
                     @if($company->page_type == 'create')
-                    {{-- </form> --}}
                     {{ Form::close() }}
                     @endif
 
@@ -83,6 +80,7 @@
                             <strong class="field-title">Prefecture</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
+                            <input type="hidden" name="prefecture_id" value="{{ $prefecture_id }}">
                             {{ Form::text('prefecture', $value->prefecture, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
@@ -114,7 +112,7 @@
                             <strong class="field-title">Street Address</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('streetaddress', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('street_address', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -123,7 +121,7 @@
                             <strong class="field-title">Business Hour</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('businesshour', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('business_hour', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -132,7 +130,7 @@
                             <strong class="field-title">Regular Holiday</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('regularholiday', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('regular_holiday', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -168,7 +166,7 @@
                             <strong class="field-title">License Number</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            {{ Form::text('licensenumber', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
+                            {{ Form::text('license_number', $company->display_name, array('placeholder' => '', 'class' => 'form-control validate[required, maxSize[100]]', 'data-prompt-position' => 'bottomLeft:0,11')) }}
                         </div>
                     </div>
 
@@ -178,7 +176,7 @@
                             <strong class="field-title">Image</strong>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-content">
-                            <input type="file" class="form-control" id="image-source" onchange="previewImage()" required>
+                            <input type="file" class="form-control" id="image-source" onchange="previewImage()" name="image" required>
                             <img src="{{asset('img/no-image/no-image.jpg')}}" width="250" alt="" id="image-preview">
                         </div>
                     </div>
